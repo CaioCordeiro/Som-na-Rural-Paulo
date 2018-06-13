@@ -1,2 +1,2 @@
-# som-na-rura-Paulo
+# Som-na-Rural-Paulo
 Repositório com código fonte do monitor sincero
