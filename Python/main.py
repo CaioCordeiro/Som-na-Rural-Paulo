@@ -10,18 +10,26 @@ import numpy
 counter = 0
 WEBCAM_DEVICE = 0
 STORAGE_DIR = 'storage'
-
+x = 5
 ArduinoUnoSerial = serial.Serial('COM4', 9600)
 
 
 graph = facebook.GraphAPI(
-    access_token="EAACEdEose0cBAKZAlZC9lIKn9P2ny3KIZAHZCGSsJgRTiHfyBChKlJ8ZC5P4vWnnYxpp7j7kNsOjM9UHJkNzVrSENWWBuQN9rAjXn3HqbY6GCvAhoIfshVVwiJa5A8o5RlyaEi89KlR2O6FPQwQOeSZAJ1DLg5SoOoJMulLzOTRixcgUesm3mfM76nB019hv3Y0fgRB2P7agZDZD")
-
-
+    access_token="EAACEdEose0cBAFRcQPjVssZAtT3qJDkn6m1WQnKdNCyaMmfyMMddsxxNZBazmBXZCZCHIGhZBLNScQL0Yq7I8YzU5FVP20ulnmLN23j4bYMEkEvvnTVIaO7VggDaC1BVzbADEDd3A7tD3AkuIvx2BNtNdWjEHKoli8VlLUp8YKb3ML6Bf9TlZBBhWxcnnWZBFxYw7bP22ZAZAewZDZD")
+def timetosnap(x):
+    while x > 0:
+        time.sleep(1)
+        ret, frame = cap.read()
+        img = frame
+        img_ui = img.copy()
+        putText(img_ui, str(x), 'centre', True)
+        cv2.imshow(screen, img_ui)
+        keypress = cv2.waitKey(1)
+        x = x-1
 def imgedit(foto):
 
     background = Image.open(foto)
-    foreground = Image.open("filtro.png")
+    foreground = Image.open("fg.png")
     background.paste(foreground, (0, 0), foreground)
     background.save('editado'+str(counter)+'.jpg')
 
@@ -75,8 +83,17 @@ if __name__ == '__main__':
             cv2.imshow(screen, img_ui)
             keypress = cv2.waitKey(1)
 
+        
         if ArduinoUnoSerial.read(1) == b'1':  # serial read 1: take photo
-            # take snapshot, wait for user input
+            while x > 0:# take snapshot, wait for user input
+                ret, frame = cap.read()
+                img = frame
+                img_ui = img.copy()
+                putText(img_ui, str(x), 'centre', True)
+                cv2.imshow(screen, img_ui)
+                keypress = cv2.waitKey(1)
+                time.sleep(1)
+                x = x - 1 
 
             img_ui = img.copy()
             putText(img_ui, "SALVAR", 'left_button', True)
