@@ -13,7 +13,9 @@ STORAGE_DIR = 'storage'
 
 ArduinoUnoSerial = serial.Serial('COM4', 9600)
 
-graph = facebook.GraphAPI(access_token="EAACEdEose0cBABNeoVNNZBivhplbZC9zeZAWkEoZAdZBZBZCTyKUATOPACOzxhnNZCMmab9Ome77qHTfkC6NNnLQMZBQYZBwn7yTurHYPv6ZAHlBebqCwX8ZCaETwZAUzfXGv3GveZArw0HxgNclf8yTY7lDEqw5z3OYw5x8sKV9bSqAF9On1b6Cb7bqPGyNBdItDbc0xIxO90GgLXzAZDZD")
+
+graph = facebook.GraphAPI(access_token="EAACEdEose0cBAKZAlZC9lIKn9P2ny3KIZAHZCGSsJgRTiHfyBChKlJ8ZC5P4vWnnYxpp7j7kNsOjM9UHJkNzVrSENWWBuQN9rAjXn3HqbY6GCvAhoIfshVVwiJa5A8o5RlyaEi89KlR2O6FPQwQOeSZAJ1DLg5SoOoJMulLzOTRixcgUesm3mfM76nB019hv3Y0fgRB2P7agZDZD")
+
 def imgedit(foto): 
 
     background = Image.open(foto)
@@ -21,7 +23,7 @@ def imgedit(foto):
     background.paste(foreground, (0, 0), foreground)
     background.save('editado'+str(counter)+'.jpg')
    
-    #graph.put_photo(image=open('editado'+str(counter)+'.jpg', 'rb'), message='Look at this cool photo!')
+    graph.put_photo(image=open('editado'+str(counter)+'.jpg', 'rb'), message='Look at this cool photo!')
 
 def putText(img, text, location, positive=True):
 
@@ -90,8 +92,6 @@ if __name__ == '__main__':
                
                 imgedit(filename)
                 counter = counter + 1
-
-
                 
               
                 for i in range(4, 0, -1):
