@@ -13,7 +13,9 @@ STORAGE_DIR = 'storage'
 
 ArduinoUnoSerial = serial.Serial('COM4', 9600)
 
+
 graph = facebook.GraphAPI(access_token="EAACEdEose0cBAKZAlZC9lIKn9P2ny3KIZAHZCGSsJgRTiHfyBChKlJ8ZC5P4vWnnYxpp7j7kNsOjM9UHJkNzVrSENWWBuQN9rAjXn3HqbY6GCvAhoIfshVVwiJa5A8o5RlyaEi89KlR2O6FPQwQOeSZAJ1DLg5SoOoJMulLzOTRixcgUesm3mfM76nB019hv3Y0fgRB2P7agZDZD")
+
 def imgedit(foto): 
 
     background = Image.open(foto)
@@ -90,8 +92,6 @@ if __name__ == '__main__':
                
                 imgedit(filename)
                 counter = counter + 1
-
-
                 
               
                 for i in range(4, 0, -1):
@@ -106,3 +106,4 @@ if __name__ == '__main__':
                 continue  # retake
 
     cv2.waitKey(1)
+
