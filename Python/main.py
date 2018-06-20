@@ -12,17 +12,27 @@ counter = 0
 WEBCAM_DEVICE = 0
 STORAGE_DIR = 'storage'
 x = 5
-ArduinoUnoSerial = serial.Serial('COM4', 9600)
-foreground = Image.open("fg.png")
+ArduinoUnoSerial = serial.Serial('/dev/tty.usbmodem1421', 9600)
+foreground = Image.open("filtro.png")
 
 graph = facebook.GraphAPI(
     access_token="EAACEdEose0cBAAKvdHizf1bGQaY6vCdAf9rZCt04ORSxffCXzGZCRkkr3ElIyBZAmNy0KrNV9lNe53RGIxlvrvZBQsqk9eSymYW8KZB6KMbhRmFCaHWTol7qaaU2i1CL1wZC2Xga1khAevjOqCAXwxcrsBkfstsZABeL6lHjWghdipqVZCUAPBhNaZAeBQwNIiwd89mKU4qDmEQZDZD")
+
 def imgedit(foto):
 
     background = Image.open(foto)
-    foreground = Image.open("fg.png")
+    foreground = Image.open("filtro.png")
     background.paste(foreground, (0, 0), foreground)
     background.save('editado'+str(counter)+'.jpg')
+    return ('editado'+str(counter)+'.jpg')
+
+def imgeditint1(foto):
+
+    background = Image.open(foto)
+    foreground = Image.open("interface1.png")
+    background.paste(foreground, (0, 0), foreground)
+    background.save('editado'+str(counter)+'.jpg')
+    return ('editado'+str(counter)+'.jpg')
 
 
 def screenEdit(screen):
@@ -67,7 +77,6 @@ if __name__ == '__main__':
             ret, frame = cap.read()
             img = frame
             img_ui = img.copy()
-            putText(img_ui, "TIRAR", 'left_button', True)
             cv2.imshow(screen, img_ui)
             keypress = cv2.waitKey(1)
 
@@ -85,22 +94,31 @@ if __name__ == '__main__':
                 x = x - 1 
 
             img_ui = img.copy()
-            putText(img_ui, "SALVAR", 'left_button', True)
-            putText(img_ui, "REPETIR", 'right_button', False)
             cv2.imshow(screen, img_ui)
+            cv2.waitKey(1)
+
+            datestr = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            filename = os.path.join(
+                os.getcwd(), STORAGE_DIR, datestr + ".jpg")
+            cv2.imwrite(filename, img)
+
+            img_readed = cv2.imread(imgeditint1(filename))
+            cv2.imshow(screen, img_readed)
+
+
             keypress = cv2.waitKey(1)
             time.sleep(1)
             # if ArduinoUnoSerial.read(1) == b'1':  # serial read 1: print
             x = 5
             dado_recebido = ArduinoUnoSerial.read(1)
-            while(dado_recebido == b'0'):
+            print("CHEGUEI AQUI")
+            while(dado_recebido != b'1' and dado_recebido != b'2'):
                 dado_recebido = ArduinoUnoSerial.read(1)
                 cv2.waitKey(3)
 
             if dado_recebido == b'1':  # serial read 1: print
                 conter = counter+1
                 img_ui = img.copy()
-                putText(img_ui, "SALVANDO(5)", 'centre', True)
                 cv2.imshow(screen, img_ui)
                 cv2.waitKey(1)
 
@@ -111,13 +129,6 @@ if __name__ == '__main__':
 
                 imgedit(filename)
                 counter = counter + 1
-
-                for i in range(4, 0, -1):
-                    time.sleep(1)
-                    img_ui = img.copy()
-                    putText(img_ui, "SALVANDO({})".format(i), 'centre', True)
-                    cv2.imshow(screen, img_ui)
-                    cv2.waitKey(1)
 
             elif dado_recebido == b'2':
                 cv2.waitKey(1)
