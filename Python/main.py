@@ -7,26 +7,22 @@ import serial
 import facebook
 from PIL import Image
 import numpy
+
 counter = 0
 WEBCAM_DEVICE = 0
 STORAGE_DIR = 'storage'
-
+x = 5
 ArduinoUnoSerial = serial.Serial('COM4', 9600)
-
+foreground = Image.open("fg.png")
 
 graph = facebook.GraphAPI(
-    access_token="EAACEdEose0cBAKZAlZC9lIKn9P2ny3KIZAHZCGSsJgRTiHfyBChKlJ8ZC5P4vWnnYxpp7j7kNsOjM9UHJkNzVrSENWWBuQN9rAjXn3HqbY6GCvAhoIfshVVwiJa5A8o5RlyaEi89KlR2O6FPQwQOeSZAJ1DLg5SoOoJMulLzOTRixcgUesm3mfM76nB019hv3Y0fgRB2P7agZDZD")
-
-
+    access_token="EAACEdEose0cBAAKvdHizf1bGQaY6vCdAf9rZCt04ORSxffCXzGZCRkkr3ElIyBZAmNy0KrNV9lNe53RGIxlvrvZBQsqk9eSymYW8KZB6KMbhRmFCaHWTol7qaaU2i1CL1wZC2Xga1khAevjOqCAXwxcrsBkfstsZABeL6lHjWghdipqVZCUAPBhNaZAeBQwNIiwd89mKU4qDmEQZDZD")
 def imgedit(foto):
 
     background = Image.open(foto)
-    foreground = Image.open("filtro.png")
+    foreground = Image.open("fg.png")
     background.paste(foreground, (0, 0), foreground)
     background.save('editado'+str(counter)+'.jpg')
-
-    graph.put_photo(image=open('editado'+str(counter)+'.jpg',
-                               'rb'), message='Look at this cool photo!')
 
 
 def screenEdit(screen):
@@ -40,7 +36,7 @@ def screenEdit(screen):
 def putText(img, text, location, positive=True):
 
     font = cv2.FONT_HERSHEY_TRIPLEX
-    fsize = 3
+    fsize = 2
     colour = (0, 255, 0) if positive else (0, 0, 255)
     if location == 'left_button':
         cv2.putText(img, text, (0, img.shape[0] - 10),
@@ -53,7 +49,7 @@ def putText(img, text, location, positive=True):
     elif location == 'centre':
         cv2.putText(
             img, text,
-            (int(img.shape[1] / 2 - 30*len(text)), int(img.shape[0] / 2)),
+            (int(img.shape[1] / 2 - 60*len(text)), int(img.shape[0] / 2)),
             font, fsize, colour)
 
 
@@ -75,8 +71,18 @@ if __name__ == '__main__':
             cv2.imshow(screen, img_ui)
             keypress = cv2.waitKey(1)
 
+        
         if ArduinoUnoSerial.read(1) == b'1':  # serial read 1: take photo
-            # take snapshot, wait for user input
+            while x > 0:# take snapshot, wait for user input
+                milli_sec = int(round(time.time() * 1000))
+                while(int(round(time.time() * 1000)) - milli_sec < 1000):
+                    ret, frame = cap.read()
+                    img = frame
+                    img_ui = img.copy()
+                    putText(img_ui, str(x), 'centre', True)
+                    cv2.imshow(screen, img_ui)
+                    keypress = cv2.waitKey(1)
+                x = x - 1 
 
             img_ui = img.copy()
             putText(img_ui, "SALVAR", 'left_button', True)
@@ -85,6 +91,7 @@ if __name__ == '__main__':
             keypress = cv2.waitKey(1)
             time.sleep(1)
             # if ArduinoUnoSerial.read(1) == b'1':  # serial read 1: print
+            x = 5
             dado_recebido = ArduinoUnoSerial.read(1)
             while(dado_recebido == b'0'):
                 dado_recebido = ArduinoUnoSerial.read(1)
