@@ -9,10 +9,10 @@ from PIL import Image
 import numpy
 
 counter = 0
-WEBCAM_DEVICE = 0
+WEBCAM_DEVICE = 1
 STORAGE_DIR = 'storage'
 x = 5
-ArduinoUnoSerial = serial.Serial('/dev/tty.usbmodem1421', 9600)
+ArduinoUnoSerial = serial.Serial('/dev/tty.usbmodem1411', 9600)
 foreground = Image.open("filtro.png")
 
 graph = facebook.GraphAPI(
@@ -25,6 +25,7 @@ def imgedit(foto):
     background.paste(foreground, (0, 0), foreground)
     background.save('editado'+str(counter)+'.jpg')
     return ('editado'+str(counter)+'.jpg')
+
 
 def imgeditint1(foto):
 
@@ -45,8 +46,8 @@ def screenEdit(screen):
 
 def putText(img, text, location, positive=True):
 
-    font = cv2.FONT_HERSHEY_TRIPLEX
-    fsize = 2
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    fsize = 5
     colour = (0, 255, 0) if positive else (0, 0, 255)
     if location == 'left_button':
         cv2.putText(img, text, (0, img.shape[0] - 10),
@@ -60,7 +61,7 @@ def putText(img, text, location, positive=True):
         cv2.putText(
             img, text,
             (int(img.shape[1] / 2 - 60*len(text)), int(img.shape[0] / 2)),
-            font, fsize, colour)
+            font, fsize, colour, 4)
 
 
 if __name__ == '__main__':
@@ -73,15 +74,23 @@ if __name__ == '__main__':
 
     # show webcam and wait for user input
     while True:
+        
+        # TELA 0
+        img2 = cv2.imread('interface0.png')
         while ArduinoUnoSerial.inWaiting() == 0:
             ret, frame = cap.read()
             img = frame
             img_ui = img.copy()
-            cv2.imshow(screen, img_ui)
+            # para espelhar a imagem so descomentar
+            # img = cv2.flip(img, 1)
+            blended = cv2.addWeighted(img, 0.8, img2, 0.5, 1)
+            cv2.imshow(screen, blended)
             keypress = cv2.waitKey(1)
+        # TELA 0
 
-        
+
         if ArduinoUnoSerial.read(1) == b'1':  # serial read 1: take photo
+            # TELA 1 - DELAY DE CONTAGEM + SORRIA
             while x > 0:# take snapshot, wait for user input
                 milli_sec = int(round(time.time() * 1000))
                 while(int(round(time.time() * 1000)) - milli_sec < 1000):
@@ -91,7 +100,15 @@ if __name__ == '__main__':
                     putText(img_ui, str(x), 'centre', True)
                     cv2.imshow(screen, img_ui)
                     keypress = cv2.waitKey(1)
+                milli_sec = int(round(time.time() * 1000))
+                while(int(round(time.time() * 1000)) - milli_sec < 500):
+                    ret, frame = cap.read()
+                    img = frame
+                    img_ui = img.copy()
+                    cv2.imshow(screen, img_ui)
+                    keypress = cv2.waitKey(1)
                 x = x - 1 
+            # TELA 1 - DELAY DE CONTAGEM + SORRIA
 
             img_ui = img.copy()
             cv2.imshow(screen, img_ui)
@@ -108,10 +125,9 @@ if __name__ == '__main__':
 
             keypress = cv2.waitKey(1)
             time.sleep(1)
-            # if ArduinoUnoSerial.read(1) == b'1':  # serial read 1: print
+            
             x = 5
             dado_recebido = ArduinoUnoSerial.read(1)
-            print("CHEGUEI AQUI")
             while(dado_recebido != b'1' and dado_recebido != b'2'):
                 dado_recebido = ArduinoUnoSerial.read(1)
                 cv2.waitKey(3)
