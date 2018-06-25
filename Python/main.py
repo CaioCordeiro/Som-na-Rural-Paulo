@@ -13,7 +13,7 @@ WEBCAM_DEVICE = 0
 STORAGE_DIR = 'storage'
 x = 5
 ArduinoUnoSerial = serial.Serial('/dev/ttyACM0', 9600)
-foreground = Image.open("filtro.png")
+foreground = Image.open("./Filtros/filtro-640x480.png")
 
 graph = facebook.GraphAPI(
     access_token="EAACEdEose0cBAAKvdHizf1bGQaY6vCdAf9rZCt04ORSxffCXzGZCRkkr3ElIyBZAmNy0KrNV9lNe53RGIxlvrvZBQsqk9eSymYW8KZB6KMbhRmFCaHWTol7qaaU2i1CL1wZC2Xga1khAevjOqCAXwxcrsBkfstsZABeL6lHjWghdipqVZCUAPBhNaZAeBQwNIiwd89mKU4qDmEQZDZD")
@@ -22,33 +22,34 @@ graph = facebook.GraphAPI(
 def imgedit(foto):
 
     background = Image.open(foto)
-    foreground = Image.open("filtro.png")
+    foreground = Image.open("./Filtros/filtro-640x480.png")
     background.paste(foreground, (0, 0), foreground)
-    background.save('editado'+str(counter)+'.jpg')
-    return ('editado'+str(counter)+'.jpg')
+    datestr = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    background.save('./storage/'+datestr+'.jpg')
+    return ('./storage/'+datestr+'.jpg')
 
 
 def imgeditint1(foto):
 
     background = Image.open(foto)
-    foreground = Image.open("interface1-640x480.png")
+    foreground = Image.open("./Interfaces/2.0/TELA3.png")
     background.paste(foreground, (0, 0), foreground)
-    background.save('editado'+str(counter)+'.jpg')
-    return ('editado'+str(counter)+'.jpg')
+    background.save('temp.jpg')
+    return ('temp.jpg')
 
 
 def imgeditint2(foto):
 
     background = Image.open(foto)
-    foreground = Image.open("interface2-640x480.png")
+    foreground = Image.open("./Interfaces/2.0/TELA4.png")
     background.paste(foreground, (0, 0), foreground)
-    background.save('editado'+str(counter)+'.jpg')
-    return ('editado'+str(counter)+'.jpg')
+    background.save('temp.jpg')
+    return ('temp.jpg')
 
 def imgeditint3(foto):
 
     background = Image.open(foto)
-    foreground = Image.open("interface3-640x480.png")
+    foreground = Image.open("./Interfaces/2.0/TELA5.png")
     background.paste(foreground, (0, 0), foreground)
     background.save('temp.jpg')
     return ('temp.jpg')
@@ -93,7 +94,7 @@ if __name__ == '__main__':
     while True:
 
         # TELA 0
-        img2 = cv2.imread('interface0-640x480.png')
+        img2 = cv2.imread('./Interfaces/2.0/TELA1.png')
         while ArduinoUnoSerial.inWaiting() == 0:
             ret, frame = cap.read()
             img = frame
@@ -136,11 +137,9 @@ if __name__ == '__main__':
                 img2 = cv2.imread('interface1-640x480.png')
                 img = frame
                 img_ui = img.copy()
-                blended = cv2.addWeighted(img, 0.8, img2, 0.5, 1)
                 filename = os.path.join(
                     os.getcwd(), STORAGE_DIR, "temp.jpg")
                 cv2.imwrite(filename, img)
-                imgedit(filename)
                 img_readed = cv2.imread(imgeditint1(filename))
 
                 cv2.imshow(screen, img_readed)
@@ -156,7 +155,7 @@ if __name__ == '__main__':
                 while(dado_recebido == b'1' and dado_recebido == b'2'):
                     cv2.waitKey(1)
                     dado_recebido = ArduinoUnoSerial.read(1)
-
+                
                 while dado_recebido != b'1' and dado_recebido != b'2':
                     img2 = cv2.imread('interface2-640x480.png')
                     img = frame
@@ -164,11 +163,11 @@ if __name__ == '__main__':
                     filename = os.path.join(
                         os.getcwd(), STORAGE_DIR, "temp.jpg")
                     cv2.imwrite(filename, img)
-                    imgedit(filename)
                     img_readed = cv2.imread(imgeditint2(filename))
                     cv2.imshow(screen, img_readed)
                     keypress = cv2.waitKey(1)
                     dado_recebido = ArduinoUnoSerial.read(1)
+
 
             else:
                 print("foi no else")
@@ -193,11 +192,10 @@ if __name__ == '__main__':
                 cv2.imwrite(filename, img)
                 imgedit(filename)
                 
-                while int(round(time.time() * 1000)) - milli_sec < 2000:
+                while int(round(time.time() * 1000)) - milli_sec < 5000:
                     img2 = cv2.imread('interface3-640x480.png')
                     img = frame
                     img_ui = img.copy()
-                    blended = cv2.addWeighted(img, 0.8, img2, 0.5, 1)
                     img_readed = cv2.imread(imgeditint3(filename))
                     cv2.imshow(screen, img_readed)
                     keypress = cv2.waitKey(1)
