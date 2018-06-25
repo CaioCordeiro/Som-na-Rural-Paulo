@@ -9,14 +9,15 @@ from PIL import Image
 import numpy
 
 counter = 0
-WEBCAM_DEVICE = 1
+WEBCAM_DEVICE = 0
 STORAGE_DIR = 'storage'
 x = 5
-ArduinoUnoSerial = serial.Serial('/dev/tty.usbmodem1411', 9600)
+ArduinoUnoSerial = serial.Serial('/dev/ttyACM0', 9600)
 foreground = Image.open("filtro.png")
 
 graph = facebook.GraphAPI(
     access_token="EAACEdEose0cBAAKvdHizf1bGQaY6vCdAf9rZCt04ORSxffCXzGZCRkkr3ElIyBZAmNy0KrNV9lNe53RGIxlvrvZBQsqk9eSymYW8KZB6KMbhRmFCaHWTol7qaaU2i1CL1wZC2Xga1khAevjOqCAXwxcrsBkfstsZABeL6lHjWghdipqVZCUAPBhNaZAeBQwNIiwd89mKU4qDmEQZDZD")
+
 
 def imgedit(foto):
 
@@ -30,11 +31,27 @@ def imgedit(foto):
 def imgeditint1(foto):
 
     background = Image.open(foto)
-    foreground = Image.open("interface1.png")
+    foreground = Image.open("interface1-640x480.png")
     background.paste(foreground, (0, 0), foreground)
     background.save('editado'+str(counter)+'.jpg')
     return ('editado'+str(counter)+'.jpg')
 
+
+def imgeditint2(foto):
+
+    background = Image.open(foto)
+    foreground = Image.open("interface2-640x480.png")
+    background.paste(foreground, (0, 0), foreground)
+    background.save('editado'+str(counter)+'.jpg')
+    return ('editado'+str(counter)+'.jpg')
+
+def imgeditint3(foto):
+
+    background = Image.open(foto)
+    foreground = Image.open("interface3-640x480.png")
+    background.paste(foreground, (0, 0), foreground)
+    background.save('temp.jpg')
+    return ('temp.jpg')
 
 def screenEdit(screen):
 
@@ -74,9 +91,9 @@ if __name__ == '__main__':
 
     # show webcam and wait for user input
     while True:
-        
+
         # TELA 0
-        img2 = cv2.imread('interface0.png')
+        img2 = cv2.imread('interface0-640x480.png')
         while ArduinoUnoSerial.inWaiting() == 0:
             ret, frame = cap.read()
             img = frame
@@ -88,10 +105,10 @@ if __name__ == '__main__':
             keypress = cv2.waitKey(1)
         # TELA 0
 
-
         if ArduinoUnoSerial.read(1) == b'1':  # serial read 1: take photo
             # TELA 1 - DELAY DE CONTAGEM + SORRIA
-            while x > 0:# take snapshot, wait for user input
+            print("tela 1")
+            while x > 0:
                 milli_sec = int(round(time.time() * 1000))
                 while(int(round(time.time() * 1000)) - milli_sec < 1000):
                     ret, frame = cap.read()
@@ -107,47 +124,88 @@ if __name__ == '__main__':
                     img_ui = img.copy()
                     cv2.imshow(screen, img_ui)
                     keypress = cv2.waitKey(1)
-                x = x - 1 
+                x = x - 1
             # TELA 1 - DELAY DE CONTAGEM + SORRIA
-
-            img_ui = img.copy()
-            cv2.imshow(screen, img_ui)
-            cv2.waitKey(1)
-
-            datestr = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-            filename = os.path.join(
-                os.getcwd(), STORAGE_DIR, datestr + ".jpg")
-            cv2.imwrite(filename, img)
-
-            img_readed = cv2.imread(imgeditint1(filename))
-            cv2.imshow(screen, img_readed)
-
-
-            keypress = cv2.waitKey(1)
-            time.sleep(1)
-            
             x = 5
+
+            # TELA 2
             dado_recebido = ArduinoUnoSerial.read(1)
             while(dado_recebido != b'1' and dado_recebido != b'2'):
                 dado_recebido = ArduinoUnoSerial.read(1)
-                cv2.waitKey(3)
-
-            if dado_recebido == b'1':  # serial read 1: print
-                conter = counter+1
+                print("tela 2")
+                img2 = cv2.imread('interface1-640x480.png')
+                img = frame
                 img_ui = img.copy()
-                cv2.imshow(screen, img_ui)
-                cv2.waitKey(1)
-
-                datestr = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+                blended = cv2.addWeighted(img, 0.8, img2, 0.5, 1)
                 filename = os.path.join(
-                    os.getcwd(), STORAGE_DIR, datestr + ".jpg")
+                    os.getcwd(), STORAGE_DIR, "temp.jpg")
                 cv2.imwrite(filename, img)
-
                 imgedit(filename)
-                counter = counter + 1
+                img_readed = cv2.imread(imgeditint1(filename))
 
-            elif dado_recebido == b'2':
+                cv2.imshow(screen, img_readed)
+                keypress = cv2.waitKey(1)
+            # TELA 2
+
+            # TELA 3
+            if dado_recebido == b'1':
                 cv2.waitKey(1)
-                continue  # retake
+                print("tela 3")
+
+                dado_recebido = ArduinoUnoSerial.read(1)
+                while(dado_recebido == b'1' and dado_recebido == b'2'):
+                    cv2.waitKey(1)
+                    dado_recebido = ArduinoUnoSerial.read(1)
+
+                while dado_recebido != b'1' and dado_recebido != b'2':
+                    img2 = cv2.imread('interface2-640x480.png')
+                    img = frame
+                    img_ui = img.copy()
+                    filename = os.path.join(
+                        os.getcwd(), STORAGE_DIR, "temp.jpg")
+                    cv2.imwrite(filename, img)
+                    imgedit(filename)
+                    img_readed = cv2.imread(imgeditint2(filename))
+                    cv2.imshow(screen, img_readed)
+                    keypress = cv2.waitKey(1)
+                    dado_recebido = ArduinoUnoSerial.read(1)
+
+            else:
+                print("foi no else")
+                continue
+            # TELA 3
+
+            # TELA 4
+            if dado_recebido == b'1':
+                cv2.waitKey(1)
+                print("tela 4")
+
+                dado_recebido = ArduinoUnoSerial.read(1)
+                while(dado_recebido == b'1' and dado_recebido == b'2'):
+                    cv2.waitKey(1)
+                    dado_recebido = ArduinoUnoSerial.read(1)
+
+                milli_sec = int(round(time.time() * 1000))
+                
+                img = frame
+                filename = os.path.join(
+                    os.getcwd(), STORAGE_DIR, "temp.jpg")
+                cv2.imwrite(filename, img)
+                imgedit(filename)
+                
+                while int(round(time.time() * 1000)) - milli_sec < 2000:
+                    img2 = cv2.imread('interface3-640x480.png')
+                    img = frame
+                    img_ui = img.copy()
+                    blended = cv2.addWeighted(img, 0.8, img2, 0.5, 1)
+                    img_readed = cv2.imread(imgeditint3(filename))
+                    cv2.imshow(screen, img_readed)
+                    keypress = cv2.waitKey(1)
+                    dado_recebido = ArduinoUnoSerial.read(1)
+
+            else:
+                continue
+
+            # TELA 4
 
     cv2.waitKey(1)

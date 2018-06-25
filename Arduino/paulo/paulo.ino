@@ -1,51 +1,47 @@
 
-int ButtonPin = 48;
-int ButtonPin2 = 11;
-int lastX = 0;
-int lastY = 0;
-int lastIquals = 0;
-void setup() {
- // put your setup code here, to run once:
- pinMode(ButtonPin, INPUT);
- pinMode(ButtonPin2,INPUT);
- Serial.begin(9600);
+#include <Ultrasonic.h>
+#include <LiquidCrystal.h>
+
+int btnEsq = 6, btnDir = 7, LedEsq = 8, ledDir = 9, ledLuz = 10;
+
+Ultrasonic ultrasonic(2,3);
+LiquidCrystal lcd (34,32,30,28,26,24);
+
+void setup(){
+  pinMode(ledEsq,OUTPUT);
+  pinMode(ledDir,OUTPUT);
+  pinMode(ledLuz,OUTPUT);
+  pinMode(btnEsq,INPUT);
+  pinMode(btnDir,INPUT);
+  lcd.begin(16,2);
 }
 
-void loop() {
- // put your main code here, to run repeatedly:
- int x = digitalRead(ButtonPin);
- int y = digitalRead(ButtonPin2);
- if (x == HIGH && lastX == 0) {
-  Serial.println('1');
-  lastX = 1;
- }
- else{
-  if(x == LOW){
-    lastX = 0;
-  }
- }
- 
- if(y == HIGH && lastY == 0){
-   Serial.print('2');
-   lastY = 1;
- }
- else{
-  if(y == LOW){
-    lastY = 0;
-  }
- }
+void loop(){
+  int distance = ultrasonic.distanceRead();
 
- if(x != y){
-  lastIquals = 0;
- }
- 
- else{
-  /*if(lastIquals == 0){
-    Serial.println('0');
-    lastIquals = 1;}*/
-    Serial.print('0');
-    
+  //LDR - Se estiver ficando escuro = acender faixa de LED na bike
+  if(analogRead(A0) < 420)
+    digitalWrite(ledLuz, HIGH);
+  else 
+    digitalWrite(ledLuz, LOW);
+
+  //Pisca-alerta - se apertar bptap direito = ligar pisca-alerta direito
+  if(digitalRead(btnDir) == HIGH)
+    piscaAlerta(ledDir);
   
- }
- delay(200);
+  
+  lcd.clear();
 }
+
+void printDistance(){
+  lcd.print("Distancia em CM:")
+  lcd.setCursor(1,5);
+  lcd.print(distance);
+}
+
+void piscaAlerta(int whichLed){
+    digitalWrite(whichLed, HIGH);
+    delay(250);
+    digitalWrite(whichLed,LOW);
+}
+
