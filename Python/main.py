@@ -16,7 +16,7 @@ ArduinoUnoSerial = serial.Serial('COM4', 9600)
 foreground = Image.open("filtro-640x480.png")
 
 graph = facebook.GraphAPI(
-    access_token="EAACEdEose0cBAKgmn9ZB0Ke8BbmZB0JtYyI0WynjfLXrWA4g5TZCapREmhTkrwG87Nw8gVwaue8Ykrj5UvjgBwYsZATBvfO4xI3kVeK4Qj2PNjHnoJg3GX59DLA7dA1wSvOHL5IEALLxsX6rd5Q6jsU4kV6ZCPgkT4V8Sc6jZBoW9ZCEj8HVeZA8ZAt2uuYhOGxF27kUQcyxn9VVMZCjghczhA")
+    access_token="TOKEN_API_HERE")
 
 
 def imgedit(foto):
@@ -26,6 +26,7 @@ def imgedit(foto):
     background.paste(foreground, (0, 0), foreground)
     datestr = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     background.save('./storage/'+datestr+'.jpg')
+    graph.put_photo(image=open('./storage/'+datestr+'.jpg', 'rb'), message='Look at this cool photo!')
     return ('./storage/'+datestr+'.jpg')
 
 def imgeditintpreview(foto):
@@ -140,7 +141,7 @@ if __name__ == '__main__':
             x = 5
 
             milli_sec = int(round(time.time() * 1000))
-            while(int(round(time.time() * 1000)) - milli_sec < 5000):
+            while(int(round(time.time() * 1000)) - milli_sec < 3000):
                 img = frame
                 img_ui = img.copy()
                 filename = os.path.join(
