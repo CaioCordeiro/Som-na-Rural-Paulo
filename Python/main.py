@@ -140,7 +140,7 @@ if __name__ == '__main__':
             x = 5
 
             milli_sec = int(round(time.time() * 1000))
-            while(int(round(time.time() * 1000)) - milli_sec < 1000):
+            while(int(round(time.time() * 1000)) - milli_sec < 5000):
                 img = frame
                 img_ui = img.copy()
                 filename = os.path.join(
